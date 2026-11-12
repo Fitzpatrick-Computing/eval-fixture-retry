@@ -1,0 +1,5 @@
+[project]
+name = "fixit"
+version = "0.3.1"
+description = "A tiny toolkit for reliable one-liners"
+requires-python = ">=3.9"
