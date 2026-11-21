@@ -44,3 +44,17 @@ def test_succeeds_after_transient_failure():
     # the value from the second attempt.
     assert retry(flaky, max_retries=3, exceptions=(ConnectionError,)) == "recovered"
     assert calls == [1, 1]
+
+
+def test_attempts_max_retries_before_raising():
+    calls = []
+
+    def always_fails():
+        calls.append(1)
+        raise ConnectionError("still down")
+
+    # Every attempt fails: the helper must try exactly max_retries times
+    # and then re-raise the last exception.
+    with pytest.raises(ConnectionError, match="still down"):
+        retry(always_fails, max_retries=3, exceptions=(ConnectionError,))
+    assert calls == [1, 1, 1]
