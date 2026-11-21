@@ -21,5 +21,4 @@ def retry(fn, max_retries=3, exceptions=(Exception,)):
             return fn()
         except exceptions as exc:
             last_exc = exc
-            break
     raise last_exc
