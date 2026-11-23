@@ -44,3 +44,27 @@ def test_succeeds_after_transient_failure():
     # the value from the second attempt.
     assert retry(flaky, max_retries=3, exceptions=(ConnectionError,)) == "recovered"
     assert calls == [1, 1]
+
+
+def test_attempts_max_retries_times_before_raising():
+    calls = []
+
+    def always_fails():
+        calls.append(1)
+        raise ConnectionError("down")
+
+    with pytest.raises(ConnectionError, match="down"):
+        retry(always_fails, max_retries=3, exceptions=(ConnectionError,))
+    assert calls == [1, 1, 1]
+
+
+def test_reraises_last_exception_after_max_retries():
+    calls = []
+
+    def always_fails():
+        calls.append(len(calls))
+        raise ConnectionError(f"attempt {len(calls)}")
+
+    with pytest.raises(ConnectionError, match="attempt 2"):
+        retry(always_fails, max_retries=2, exceptions=(ConnectionError,))
+    assert calls == [0, 1]

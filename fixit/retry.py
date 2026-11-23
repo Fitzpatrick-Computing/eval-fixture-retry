@@ -15,11 +15,12 @@ def retry(fn, max_retries=3, exceptions=(Exception,)):
     the last such exception is raised. Non-matching exceptions propagate
     immediately.
     """
+    if max_retries < 1:
+        raise ValueError("max_retries must be at least 1")
     last_exc = None
     for _attempt in range(max_retries):
         try:
             return fn()
         except exceptions as exc:
             last_exc = exc
-            break
     raise last_exc
